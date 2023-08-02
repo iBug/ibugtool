@@ -81,6 +81,12 @@ func parsePropertyValue(v reflect.Value, s string) error {
 				return err
 			}
 			v.Set(reflect.ValueOf(time.Unix(i, 0)))
+		case time.Duration:
+			d, err := time.ParseDuration(s)
+			if err != nil {
+				return err
+			}
+			v.Set(reflect.ValueOf(d))
 		default:
 			return errors.New("unknown type")
 		}
