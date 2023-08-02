@@ -8,7 +8,7 @@ var RootCmd = &cobra.Command{
 }
 
 func RunE(cmd *cobra.Command, args []string) error {
-	return nil
+	return cmd.Help()
 }
 
 func Execute() error {
