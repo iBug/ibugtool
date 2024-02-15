@@ -2,7 +2,7 @@ package cmd
 
 import "github.com/spf13/cobra"
 
-var RootCmd = &cobra.Command{
+var rootCmd = &cobra.Command{
 	Use:  "ibugtool",
 	RunE: RunE,
 }
@@ -12,5 +12,9 @@ func RunE(cmd *cobra.Command, args []string) error {
 }
 
 func Execute() error {
-	return RootCmd.Execute()
+	return rootCmd.Execute()
+}
+
+func init() {
+	rootCmd.AddCommand(PveCmd)
 }
