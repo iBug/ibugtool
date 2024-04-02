@@ -1,4 +1,4 @@
-package pve
+package zfs
 
 import (
 	"github.com/iBug/ibugtool/pkg/util"
@@ -6,7 +6,7 @@ import (
 )
 
 var Cmd = &cobra.Command{
-	Use:   "pve",
-	Short: "Proxmox VE commands",
+	Use:   "zfs",
+	Short: "ZFS commands",
 	RunE:  util.ShowHelp,
 }

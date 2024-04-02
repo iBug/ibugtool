@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/iBug/ibugtool/cmd/pve"
+	"github.com/iBug/ibugtool/cmd/zfs"
 	"github.com/iBug/ibugtool/pkg/util"
 	"github.com/spf13/cobra"
 )
@@ -20,6 +21,9 @@ func Execute() error {
 }
 
 func init() {
-	rootCmd.AddCommand(pve.PveCmd)
 	rootCmd.AddCommand(versionCmd)
+
+	// Entrypoint command for sub-packages are always named "Cmd"
+	rootCmd.AddCommand(pve.Cmd)
+	rootCmd.AddCommand(zfs.Cmd)
 }

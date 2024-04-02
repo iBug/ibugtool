@@ -12,5 +12,5 @@ var findCTCmd = &cobra.Command{
 }
 
 func init() {
-	PveCmd.AddCommand(findCTCmd)
+	Cmd.AddCommand(findCTCmd)
 }
