@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/iBug/ibugtool/cmd/pve"
 	"github.com/iBug/ibugtool/pkg/util"
 	"github.com/spf13/cobra"
 )
@@ -8,6 +9,10 @@ import (
 var rootCmd = &cobra.Command{
 	Use:  "ibugtool",
 	RunE: util.ShowHelp,
+	CompletionOptions: cobra.CompletionOptions{
+		HiddenDefaultCmd: true,
+	},
+	Version: version,
 }
 
 func Execute() error {
@@ -15,5 +20,6 @@ func Execute() error {
 }
 
 func init() {
-	rootCmd.AddCommand(PveCmd)
+	rootCmd.AddCommand(pve.PveCmd)
+	rootCmd.AddCommand(versionCmd)
 }
