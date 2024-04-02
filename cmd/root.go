@@ -9,6 +9,7 @@ import (
 
 var rootCmd = &cobra.Command{
 	Use:  "ibugtool",
+	Args: cobra.NoArgs,
 	RunE: util.ShowHelp,
 	CompletionOptions: cobra.CompletionOptions{
 		HiddenDefaultCmd: true,

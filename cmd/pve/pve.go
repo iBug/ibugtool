@@ -8,5 +8,6 @@ import (
 var Cmd = &cobra.Command{
 	Use:   "pve",
 	Short: "Proxmox VE commands",
+	Args:  cobra.NoArgs,
 	RunE:  util.ShowHelp,
 }
