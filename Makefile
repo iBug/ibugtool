@@ -1,7 +1,7 @@
 BIN := ibugtool
 VERSION := $(shell git describe --tags --always --dirty)
 
-.PHONY: all gz clean $(BIN)
+.PHONY: all gz test clean $(BIN)
 
 all: $(BIN)
 
@@ -12,6 +12,9 @@ $(BIN):
 
 $(BIN).gz: $(BIN)
 	gzip -c9 $^ > $@
+
+test:
+	go test -v ./...
 
 clean:
 	rm -f $(BIN)
