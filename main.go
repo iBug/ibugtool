@@ -1,7 +1,14 @@
 package main
 
-import "github.com/iBug/ibugtool/cmd"
+import (
+	"os"
+
+	"github.com/iBug/ibugtool/cmd"
+)
 
 func main() {
-	cmd.Execute()
+	err := cmd.Execute()
+	if err != nil {
+		os.Exit(1)
+	}
 }

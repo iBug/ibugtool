@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	ErrProcessNotExist = errors.New("process does not exist")
+	ErrProcessNotLXC = errors.New("process does not belong to a container")
 )
 
 func FindCTByPid(pid int) (int, error) {
@@ -22,5 +22,5 @@ func FindCTByPid(pid int) (int, error) {
 	if len(parts) >= 3 && strings.HasSuffix(parts[0], "::") && parts[1] == "lxc" {
 		return strconv.Atoi(parts[2])
 	}
-	return 0, ErrProcessNotExist
+	return 0, ErrProcessNotLXC
 }
