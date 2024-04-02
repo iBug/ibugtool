@@ -22,6 +22,7 @@ func Execute() error {
 }
 
 func init() {
+	rootCmd.SetHelpCommand(&cobra.Command{Hidden: true})
 	rootCmd.AddCommand(versionCmd)
 
 	// Entrypoint command for sub-packages are always named "Cmd"
