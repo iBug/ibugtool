@@ -34,6 +34,12 @@ func arcstatsRunE(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	out := cmd.ErrOrStderr()
+	linePreamble := "\n"
+	if util.IsWriterTerminal(out) {
+		linePreamble = util.ResetLine
+	}
+
 	fmt.Printf("%8s  %8s  %5s  %5s%%  %7s  %6s  %5s%%\n",
 		"req/s", "ARC Hit", "Miss", "Rate", "L2 Hit", "Miss", "Rate")
 	defer fmt.Println()
@@ -64,7 +70,7 @@ func arcstatsRunE(cmd *cobra.Command, args []string) error {
 		if l2hits+l2misses > 0 {
 			l2hitratio = float64(l2hits) / float64(l2hits+l2misses) * 100.0
 		}
-		fmt.Printf("%s%8.1f  %8.1f  %5.1f  %5.1f%%  %7.1f  %6.1f  %5.1f%%", util.ResetLine,
+		fmt.Fprintf(out, "%s%8.1f  %8.1f  %5.1f  %5.1f%%  %7.1f  %6.1f  %5.1f%%", linePreamble,
 			reqrate, hitrate, missrate, hitratio, l2hitrate, l2missrate, l2hitratio)
 		last = s
 	}
