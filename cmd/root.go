@@ -3,6 +3,7 @@ package cmd
 import (
 	"github.com/iBug/ibugtool/cmd/pve"
 	"github.com/iBug/ibugtool/cmd/zfs"
+	"github.com/iBug/ibugtool/internal/version"
 	"github.com/iBug/ibugtool/pkg/util"
 	"github.com/spf13/cobra"
 )
@@ -14,7 +15,7 @@ var rootCmd = &cobra.Command{
 	CompletionOptions: cobra.CompletionOptions{
 		HiddenDefaultCmd: true,
 	},
-	Version: version,
+	Version: version.Version,
 }
 
 func Execute() error {
