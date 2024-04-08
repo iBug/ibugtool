@@ -12,6 +12,7 @@ var updateCmd = &cobra.Command{
 	Short: "Update this tool from GitHub releases",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		cmd.SilenceUsage = true
 		return updater.UpdateBinary(cmd.OutOrStdout(), forceUpdate)
 	},
 }
