@@ -67,7 +67,7 @@ func DownloadFile(w *os.File, url string) error {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("unexpected status code %d", resp.StatusCode)
+		return fmt.Errorf("unexpected status code %d", url, resp.StatusCode)
 	}
 	gz, err := gzip.NewReader(resp.Body)
 	if err != nil {
@@ -94,7 +94,7 @@ func UpdateBinary(w io.Writer, force bool) error {
 	}
 	tag, err := GetLatestTag(Repository)
 	if err != nil {
-		return err
+		return fmt.Errorf("GetLatestTag: %w", err)
 	}
 	if tag == version.Version {
 		if !force {
