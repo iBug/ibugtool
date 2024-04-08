@@ -15,6 +15,7 @@ var versionCmd = &cobra.Command{
 	Short:  "Print version and exit",
 	Hidden: true,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Fprintln(cmd.OutOrStdout(), cmd.Root().Name(), "version", cmd.Root().Version)
+		root := cmd.Root()
+		fmt.Fprintln(cmd.OutOrStdout(), root.Name(), "version", root.Version)
 	},
 }

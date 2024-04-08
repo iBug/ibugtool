@@ -23,9 +23,10 @@ func Execute() error {
 
 func init() {
 	rootCmd.SetHelpCommand(&cobra.Command{Hidden: true})
-	rootCmd.AddCommand(versionCmd)
-
-	// Entrypoint command for sub-packages are always named "Cmd"
-	rootCmd.AddCommand(pve.Cmd)
-	rootCmd.AddCommand(zfs.Cmd)
+	rootCmd.AddCommand(
+		versionCmd,
+		// Entrypoint command for sub-packages are always "Cmd" or "MakeCmd()"
+		pve.Cmd,
+		zfs.Cmd,
+	)
 }
