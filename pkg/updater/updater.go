@@ -94,7 +94,7 @@ func UpdateBinary(w io.Writer, force bool) error {
 	}
 	tag, err := GetLatestTag(Repository)
 	if err != nil {
-		return err
+		return fmt.Errorf("GetLatestTag: %w", err)
 	}
 	if tag == version.Version {
 		if !force {
