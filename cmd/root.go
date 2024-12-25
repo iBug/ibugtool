@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/iBug/ibugtool/cmd/cgroup"
 	"github.com/iBug/ibugtool/cmd/net"
 	"github.com/iBug/ibugtool/cmd/pve"
 	"github.com/iBug/ibugtool/cmd/zfs"
@@ -29,6 +30,7 @@ func init() {
 		updateCmd,
 		versionCmd,
 		// Entrypoint command for sub-packages are always "Cmd" or "MakeCmd()"
+		cgroup.Cmd,
 		net.HashlimitCmd,
 		pve.Cmd,
 		zfs.Cmd,

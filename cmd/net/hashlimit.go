@@ -19,7 +19,7 @@ If BUCKET is given, list entries in that bucket.`,
 		if len(args) == 0 {
 			return hashlimitList(cmd)
 		}
-		return nil
+		return hashlimitShow(cmd, args[0])
 	},
 }
 
@@ -31,6 +31,22 @@ func hashlimitList(cmd *cobra.Command) error {
 	}
 	for _, bucket := range buckets {
 		fmt.Fprintln(out, bucket)
+	}
+	return nil
+}
+
+func hashlimitShow(cmd *cobra.Command, bucket string) error {
+	out := cmd.OutOrStdout()
+	entries, err := proc.HashlimitListBucket(bucket)
+	if err != nil {
+		return err
+	}
+	if len(entries) == 0 {
+		fmt.Fprintln(out, "No entries in bucket")
+		return nil
+	}
+	for _, entry := range entries {
+		fmt.Fprintln(out, entry)
 	}
 	return nil
 }
