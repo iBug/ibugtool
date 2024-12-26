@@ -25,11 +25,35 @@ type uidInfo struct {
 	Info cgroupfs.CgroupInfo
 }
 
+func userRssSize(uid uint64) (uint64, error) {
+	userSlice := filepath.Join(cgroupfs.CgroupUserRoot, fmt.Sprintf("user-%d.slice", uid))
+	pids, err := cgroupfs.GetAllPids(userSlice)
+	if err != nil {
+		return 0, err
+	}
+	var rss uint64
+	for _, pid := range pids {
+		p, err := proc.FS.Proc(int(pid))
+		if err != nil {
+			continue
+		}
+		// status, err := p.NewStatus()
+		stat, err := p.Stat()
+		if err != nil {
+			continue
+		}
+		// rss += status.RssAnon + status.RssFile + status.RssShmem
+		rss += uint64(stat.ResidentMemory())
+	}
+	return rss, nil
+}
+
 func userMemShow(cmd *cobra.Command, args []string) error {
-	meminfo, err := proc.GetMeminfo()
+	meminfo, err := proc.FS.Meminfo()
 	if err != nil {
 		return err
 	}
+	memTotal := 1024 * *meminfo.MemTotal
 
 	userSlices, err := cgroupfs.UserSlices()
 	if err != nil {
@@ -67,10 +91,15 @@ func userMemShow(cmd *cobra.Command, args []string) error {
 		tablewriter.ALIGN_DEFAULT,
 		tablewriter.ALIGN_RIGHT,
 		tablewriter.ALIGN_RIGHT,
-		tablewriter.ALIGN_RIGHT,
-		tablewriter.ALIGN_RIGHT,
 	}
-	tHeaders := []string{"UID", "Name", "Memory", "Memory%", "Swap", "PIDs"}
+	tHeaders := []string{"UID", "Name", "Memory", "Memory%"}
+	if userMemIncludeRss {
+		// The two columns for RSS
+		tAlignment = append(tAlignment, tablewriter.ALIGN_RIGHT, tablewriter.ALIGN_RIGHT)
+		tHeaders = append(tHeaders, "RSS", "RSS%")
+	}
+	tAlignment = append(tAlignment, tablewriter.ALIGN_RIGHT, tablewriter.ALIGN_RIGHT)
+	tHeaders = append(tHeaders, "Swap", "PIDs")
 	table.SetColumnAlignment(tAlignment)
 	table.SetHeader(tHeaders)
 	for _, info := range infos {
@@ -85,10 +114,20 @@ func userMemShow(cmd *cobra.Command, args []string) error {
 			strconv.FormatUint(info.Uid, 10),
 			username,
 			util.FormatSizeAligned(info.Info.MemoryCurrent),
-			fmt.Sprintf("%.1f %%", float64(info.Info.MemoryCurrent)/float64(meminfo.MemTotal)*100),
-			util.FormatSizeAligned(info.Info.MemorySwapCurrent),
-			fmt.Sprintf("%d", info.Info.Pids),
+			fmt.Sprintf("%.1f %%", float64(info.Info.MemoryCurrent)/float64(memTotal)*100),
 		}
+		if userMemIncludeRss {
+			rss, err := userRssSize(info.Uid)
+			if err != nil {
+				cmd.PrintErrf("Failed to get RSS for UID %d: %v\n", info.Uid, err)
+			}
+			row = append(row,
+				util.FormatSizeAligned(rss),
+				fmt.Sprintf("%.1f %%", float64(rss)/float64(memTotal)*100))
+		}
+		row = append(row,
+			util.FormatSizeAligned(info.Info.MemorySwapCurrent),
+			fmt.Sprintf("%d", info.Info.Pids))
 		table.Append(row)
 	}
 	table.Render()
@@ -102,6 +141,9 @@ var userMemCmd = &cobra.Command{
 	RunE:  userMemShow,
 }
 
+var userMemIncludeRss bool
+
 func init() {
+	userMemCmd.Flags().BoolVarP(&userMemIncludeRss, "rss", "r", false, "Include resident set size")
 	Cmd.AddCommand(userMemCmd)
 }

@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-const HashlimitBasePath = "/proc/net/ipt_hashlimit"
+const HashlimitBasePath = Root + "/net/ipt_hashlimit"
 
 // A HashlimitEntty represents a single item in a bucket.
 type HashlimitEntry struct {
