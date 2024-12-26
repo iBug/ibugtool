@@ -70,7 +70,7 @@ func userMemShow(cmd *cobra.Command, args []string) error {
 		tablewriter.ALIGN_RIGHT,
 		tablewriter.ALIGN_RIGHT,
 	}
-	tHeaders := []string{"UID", "NAME", "Memory", "Memory%", "Swap", "PIDs"}
+	tHeaders := []string{"UID", "Name", "Memory", "Memory%", "Swap", "PIDs"}
 	table.SetColumnAlignment(tAlignment)
 	table.SetHeader(tHeaders)
 	for _, info := range infos {
@@ -84,9 +84,9 @@ func userMemShow(cmd *cobra.Command, args []string) error {
 		row := []string{
 			strconv.FormatUint(info.Uid, 10),
 			username,
-			util.FormatSize(info.Info.MemoryCurrent),
+			util.FormatSizeAligned(info.Info.MemoryCurrent),
 			fmt.Sprintf("%.1f %%", float64(info.Info.MemoryCurrent)/float64(meminfo.MemTotal)*100),
-			util.FormatSize(info.Info.MemorySwapCurrent),
+			util.FormatSizeAligned(info.Info.MemorySwapCurrent),
 			fmt.Sprintf("%d", info.Info.Pids),
 		}
 		table.Append(row)
@@ -98,6 +98,7 @@ func userMemShow(cmd *cobra.Command, args []string) error {
 var userMemCmd = &cobra.Command{
 	Use:   "usermem",
 	Short: "Show user memory usage",
+	Args:  cobra.NoArgs,
 	RunE:  userMemShow,
 }
 
