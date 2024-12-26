@@ -101,7 +101,9 @@ func userMemShow(cmd *cobra.Command, args []string) error {
 	tAlignment = append(tAlignment, tablewriter.ALIGN_RIGHT, tablewriter.ALIGN_RIGHT)
 	tHeaders = append(tHeaders, "Swap", "PIDs")
 	table.SetColumnAlignment(tAlignment)
-	table.SetHeader(tHeaders)
+	table.Append(tHeaders)
+
+	var memorySum, memorySwapSum, pidsSum, rssSum uint64
 	for _, info := range infos {
 		var username string
 		user, err := osuser.LookupId(strconv.FormatUint(info.Uid, 10))
@@ -124,12 +126,31 @@ func userMemShow(cmd *cobra.Command, args []string) error {
 			row = append(row,
 				util.FormatSizeAligned(rss),
 				fmt.Sprintf("%.1f %%", float64(rss)/float64(memTotal)*100))
+			rssSum += rss
 		}
 		row = append(row,
 			util.FormatSizeAligned(info.Info.MemorySwapCurrent),
 			fmt.Sprintf("%d", info.Info.Pids))
 		table.Append(row)
+
+		memorySum += info.Info.MemoryCurrent
+		memorySwapSum += info.Info.MemorySwapCurrent
+		pidsSum += info.Info.Pids
 	}
+	footerLine := []string{
+		"", "Total",
+		util.FormatSizeAligned(memorySum),
+		fmt.Sprintf("%.1f %%", float64(memorySum)/float64(memTotal)*100),
+	}
+	if userMemIncludeRss {
+		footerLine = append(footerLine,
+			util.FormatSizeAligned(rssSum),
+			fmt.Sprintf("%.1f %%", float64(rssSum)/float64(memTotal)*100))
+	}
+	footerLine = append(footerLine,
+		util.FormatSizeAligned(memorySwapSum),
+		fmt.Sprintf("%d", pidsSum))
+	table.Append(footerLine)
 	table.Render()
 	return nil
 }
