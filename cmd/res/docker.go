@@ -3,14 +3,13 @@ package res
 import (
 	"fmt"
 	"slices"
+	"strconv"
 	"strings"
-	"time"
 
 	"github.com/iBug/ibugtool/pkg/docker"
 	"github.com/iBug/ibugtool/pkg/proc"
 	"github.com/iBug/ibugtool/pkg/util"
 	"github.com/olekukonko/tablewriter"
-	"github.com/prometheus/procfs"
 	"github.com/spf13/cobra"
 )
 
@@ -27,41 +26,15 @@ var (
 )
 
 func dockerRunE(cmd *cobra.Command, args []string) error {
-	now := time.Now()
-	now_ts := float64(now.Unix()) + float64(now.UnixNano())/1e9
-	cpuRatio := func(stat procfs.ProcStat) float64 {
-		startTime, err := stat.StartTime()
-		if err != nil {
-			return 0
-		}
-		return stat.CPUTime() / (now_ts - startTime)
-	}
-
-	var sortFunc func(a, b procfs.Proc) int
+	var sortFunc func(a, b proc.ProcInfo) int
 	switch dockerSortBy {
 	case "memory":
-		sortFunc = func(a, b procfs.Proc) int {
-			as, err := a.Stat()
-			if err != nil {
-				return 0
-			}
-			bs, err := b.Stat()
-			if err != nil {
-				return 0
-			}
-			return int(bs.ResidentMemory() - as.ResidentMemory())
+		sortFunc = func(a, b proc.ProcInfo) int {
+			return int(b.ResidentMemory - a.ResidentMemory)
 		}
 	case "cpu":
-		sortFunc = func(a, b procfs.Proc) int {
-			as, err := a.Stat()
-			if err != nil {
-				return 0
-			}
-			bs, err := b.Stat()
-			if err != nil {
-				return 0
-			}
-			diff := cpuRatio(bs) - cpuRatio(as)
+		sortFunc = func(a, b proc.ProcInfo) int {
+			diff := b.CPURatio() - a.CPURatio()
 			switch {
 			case diff < 0:
 				return -1
@@ -82,15 +55,15 @@ func dockerRunE(cmd *cobra.Command, args []string) error {
 			return fmt.Errorf("could not get processes info for container %s: %v", container, err)
 		}
 
-		procs := make([]procfs.Proc, 0, len(pids))
+		infos := make([]proc.ProcInfo, 0, len(pids))
 		for _, pid := range pids {
-			p, err := proc.FS.Proc(int(pid))
+			info, err := proc.GetProcInfo(pid)
 			if err != nil {
 				return fmt.Errorf("could not open process %d: %v", pid, err)
 			}
-			procs = append(procs, p)
+			infos = append(infos, info)
 		}
-		slices.SortFunc(procs, sortFunc)
+		slices.SortFunc(infos, sortFunc)
 
 		// Output
 		table := util.DefaultTable(cmd.OutOrStdout())
@@ -105,28 +78,18 @@ func dockerRunE(cmd *cobra.Command, args []string) error {
 		table.SetColumnAlignment(tAlignment)
 		table.Append(tHeaders)
 
-		for _, p := range procs {
-			stat, err := p.Stat()
-			if err != nil {
-				return fmt.Errorf("could not stat process %d: %v", p.PID, err)
-			}
-			cpu := fmt.Sprintf("%.1f%%", cpuRatio(stat)*100)
-			mem := util.FormatSize(uint64(stat.ResidentMemory()))
-			cmdline, err := p.CmdLine()
-			if err != nil {
-				return fmt.Errorf("could not get command line for process %d: %v", p.PID, err)
-			}
+		for _, info := range infos {
+			cpu := fmt.Sprintf("%.1f%%", info.CPURatio()*100)
+			mem := util.FormatSize(info.ResidentMemory)
 			table.Append([]string{
-				fmt.Sprintf("%d", p.PID),
+				strconv.Itoa(info.Pid),
 				cpu,
 				mem,
-				strings.Join(cmdline, " "),
+				strings.Join(info.Cmdline, " "),
 			})
 		}
 		table.Render()
 	}
-
-	// Implement Docker container resource usage display
 	return nil
 }
 

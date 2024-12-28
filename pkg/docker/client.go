@@ -21,7 +21,7 @@ func GetDockerClient() (*client.Client, error) {
 	return cli, nil
 }
 
-func ContainerProcesses(ctx context.Context, containerID string) ([]uint64, error) {
+func ContainerProcesses(ctx context.Context, containerID string) ([]int, error) {
 	c, err := GetDockerClient()
 	if err != nil {
 		return nil, err
@@ -30,13 +30,13 @@ func ContainerProcesses(ctx context.Context, containerID string) ([]uint64, erro
 	if err != nil {
 		return nil, err
 	}
-	pids := make([]uint64, 0, len(container.Processes))
+	pids := make([]int, 0, len(container.Processes))
 	for _, proc := range container.Processes {
-		pid, err := strconv.ParseUint(proc[1], 10, 64)
+		pid, err := strconv.ParseInt(proc[1], 10, 64)
 		if err != nil {
 			return nil, err
 		}
-		pids = append(pids, pid)
+		pids = append(pids, int(pid))
 	}
 	return pids, nil
 }
