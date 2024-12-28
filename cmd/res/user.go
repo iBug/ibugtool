@@ -1,4 +1,4 @@
-package cgroup
+package res
 
 import (
 	"fmt"
@@ -15,8 +15,8 @@ import (
 )
 
 var Cmd = &cobra.Command{
-	Use:   "cgroup",
-	Short: "Commands for managing cgroup information",
+	Use:   "res",
+	Short: "Commands for displaying system resource information",
 	RunE:  util.ShowHelp,
 }
 
