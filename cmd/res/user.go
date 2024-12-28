@@ -17,6 +17,7 @@ import (
 var Cmd = &cobra.Command{
 	Use:   "res",
 	Short: "Commands for displaying system resource information",
+	Args:  cobra.NoArgs,
 	RunE:  util.ShowHelp,
 }
 
