@@ -47,8 +47,8 @@ func GetCgroupInfo(dir string) (CgroupInfo, error) {
 	return info, nil
 }
 
-func getAllPids(dir string) ([]uint64, []error) {
-	var pids []uint64
+func getAllPids(dir string) ([]int, []error) {
+	var pids []int
 	var errs []error
 	entries, err := os.ReadDir(dir)
 	if err != nil {
@@ -71,18 +71,18 @@ func getAllPids(dir string) ([]uint64, []error) {
 		defer f.Close()
 		scanner := bufio.NewScanner(f)
 		for scanner.Scan() {
-			pid, err := strconv.ParseUint(scanner.Text(), 10, 64)
+			pid, err := strconv.ParseInt(scanner.Text(), 10, 64)
 			if err != nil {
 				errs = append(errs, err)
 				continue
 			}
-			pids = append(pids, pid)
+			pids = append(pids, int(pid))
 		}
 	}
 	return pids, errs
 }
 
-func GetAllPids(dir string) ([]uint64, error) {
+func GetAllPids(dir string) ([]int, error) {
 	pids, errs := getAllPids(dir)
 	return pids, errors.Join(errs...)
 }
