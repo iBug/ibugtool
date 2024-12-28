@@ -21,12 +21,16 @@ func GetDockerClient() (*client.Client, error) {
 	return cli, nil
 }
 
-func ContainerProcesses(ctx context.Context, containerID string) ([]int, error) {
+func Client() *client.Client {
 	c, err := GetDockerClient()
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
-	container, err := c.ContainerTop(ctx, containerID, nil)
+	return c
+}
+
+func ContainerProcesses(ctx context.Context, containerID string) ([]int, error) {
+	container, err := Client().ContainerTop(ctx, containerID, nil)
 	if err != nil {
 		return nil, err
 	}
