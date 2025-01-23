@@ -4,6 +4,7 @@ import (
 	"github.com/iBug/ibugtool/cmd/net"
 	"github.com/iBug/ibugtool/cmd/pve"
 	"github.com/iBug/ibugtool/cmd/res"
+	"github.com/iBug/ibugtool/cmd/term"
 	"github.com/iBug/ibugtool/cmd/zfs"
 	"github.com/iBug/ibugtool/internal/version"
 	"github.com/iBug/ibugtool/pkg/util"
@@ -33,6 +34,7 @@ func init() {
 		res.Cmd,
 		net.HashlimitCmd,
 		pve.Cmd,
+		term.Cmd,
 		zfs.Cmd,
 	)
 }
